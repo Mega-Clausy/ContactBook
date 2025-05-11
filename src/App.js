@@ -34,7 +34,6 @@ export default function App() {
         }
     }, [netInfo.isConnected]);
 
-
     return (
         <PaperProvider theme={MD3LightTheme}>
             <ContactsProvider>
