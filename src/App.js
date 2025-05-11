@@ -11,17 +11,9 @@ import ContactViewScreen from "./screens/ContactViewScreen";
 import { ContactsProvider } from "./context/ContactsContext";
 //Importing NetInfo
 import { useNetInfo } from "@react-native-community/netinfo";
+import { syncContactsWithServer } from "./src/utils/sync"; // adjust if needed
 
 const Stack = createStackNavigator();
-
-const netInfo = useNetInfo();
-
-//We'll be using option 1
-useEffect(() => {
-    if(netInfo.isConnected){
-        triggerSync();
-    }
-},[netInfo.isConnected]);
 
 const theme = {
     ...MD3LightTheme,
@@ -34,6 +26,15 @@ const theme = {
 };
 
 export default function App() {
+    const netInfo = useNetInfo();
+    //We'll be using option 1
+    useEffect(() => {
+        if (netInfo.isConnected) {
+            syncContactsWithServer();
+        }
+    }, [netInfo.isConnected]);
+
+
     return (
         <PaperProvider theme={MD3LightTheme}>
             <ContactsProvider>
