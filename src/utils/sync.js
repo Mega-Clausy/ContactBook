@@ -1,42 +1,61 @@
 import Realm from "realm";
-import { useNetInfo } from "@react-native-community/netinfo";
 
-export const syncContactsWithServer = async (setIsSyncing, setSyncMessage, showSnackbar) => {
-  const realm = await Realm.open({ schema: [/* Your schemas here if needed */] });
+// Asegúrate de importar tu ContactSchema real si lo tienes en otro archivo
+const ContactSchema = {
+  name: "Contact",
+  primaryKey: "_id",
+  properties: {
+    _id: "string",
+    name: "string",
+    phone: "string",
+    email: "string?",
+    syncStatus: "int", // 0 = synced, 1 = modified/new, -1 = to delete
+  },
+};
+
+export const syncContactsWithServer = async (
+  setIsSyncing,
+  setSyncMessage,
+  setSnackbarMessage,
+  setSnackbarVisible
+) => {
+  const realm = await Realm.open({
+    path: "contactsRealm",
+    schema: [ContactSchema],
+  });
+
   const unsynced = realm.objects("Contact").filtered("syncStatus != 0");
 
-  if (unsynced.length === 0) return;
+  if (unsynced.length === 0) {
+    console.log("✅ No contacts to sync.");
+    return;
+  }
 
   if (setIsSyncing) setIsSyncing(true);
-  if (setSyncMessage) setSyncMessage("🔄 Syncing started...");
-  if (showSnackbar) showSnackbar("🔄 Syncing started...");
-  console.log("Sync started!");
-
-  await delay(1000); // Let UI update
+  if (setSyncMessage) setSyncMessage(🔄 Syncing {unsynced.length} contacts...);
+  await delay(1000);
 
   for (const contact of unsynced) {
     try {
       const payload = {
-        id: contact.id,
+        id: contact._id,
         name: contact.name,
         phone: contact.phone,
         email: contact.email,
-        syncStatus: contact.syncStatus,
       };
 
-      if (setSyncMessage) setSyncMessage(`🔄 Syncing ${contact.name}...`);
-      if (showSnackbar) showSnackbar(`🔄 Syncing ${contact.name}...`);
+      let response;
+      if (setSyncMessage) setSyncMessage(🔄 Syncing ${contact.name}...);
       await delay(700);
 
-      let response;
       if (contact.syncStatus === 1) {
-        response = await fetch(`https://your.api/contacts/${contact.id}`, {
+        response = await fetch(`https://your.api/contacts/${contact._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else if (contact.syncStatus === -1) {
-        response = await fetch(`https://your.api/contacts/${contact.id}`, {
+        response = await fetch(`https://your.api/contacts/${contact._id}`, {
           method: "DELETE",
         });
       }
@@ -49,27 +68,25 @@ export const syncContactsWithServer = async (setIsSyncing, setSyncMessage, showS
             contact.syncStatus = 0;
           }
         });
-
-        const successMessage = `✅ Synced ${contact.name}`;
-        if (setSyncMessage) setSyncMessage(successMessage);
-        if (showSnackbar) showSnackbar(successMessage);
+        if (setSyncMessage) setSyncMessage(✅ Synced ${contact.name});
       } else {
-        const failMessage = `❌ Failed syncing ${contact.name}`;
-        if (setSyncMessage) setSyncMessage(failMessage);
-        if (showSnackbar) showSnackbar(failMessage);
+        if (setSyncMessage) setSyncMessage(❌ Failed syncing ${contact.name});
       }
+
     } catch (error) {
-      console.error(`❌ Error syncing ${contact.name}:`, error);
-      const errorMessage = `❌ Error syncing ${contact.name}`;
-      if (setSyncMessage) setSyncMessage(errorMessage);
-      if (showSnackbar) showSnackbar(errorMessage);
+      console.error(❌ Error syncing ${contact.name}:, error);
+      if (setSyncMessage) setSyncMessage(❌ Error syncing ${contact.name});
     }
 
     await delay(1000);
   }
 
   if (setSyncMessage) setSyncMessage("✅ All contacts synced!");
-  if (showSnackbar) showSnackbar("✅ All contacts synced!");
+  if (setSnackbarMessage && setSnackbarVisible) {
+    setSnackbarMessage("✅ All contacts synced!");
+    setSnackbarVisible(true);
+  }
+
   await delay(4000);
 
   if (setIsSyncing) setIsSyncing(false);
@@ -78,7 +95,7 @@ export const syncContactsWithServer = async (setIsSyncing, setSyncMessage, showS
   realm.close();
 };
 
-// Helper delay function
+// Simple delay function
 function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
