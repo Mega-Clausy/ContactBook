@@ -42,7 +42,7 @@ export default function App() {
 
     useEffect(() => {
         if (netInfo.isConnected) {
-            syncContactsWithServer(setIsSyncing, setSyncMessage);
+            syncContactsWithServer(setIsSyncing, setSyncMessage,showSnackbar);
         }
     }, [netInfo.isConnected]);
 
@@ -82,6 +82,7 @@ export default function App() {
                         visible={snackbarVisible}
                         onDismiss={() => setSnackbarVisible(false)}
                         duration={4000}
+                        style={{ marginBottom: 20 }}
                     >
                         {snackbarMessage}
                     </Snackbar>

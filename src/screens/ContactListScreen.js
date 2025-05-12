@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { FlatList, View } from "react-native";
-import { FAB } from "react-native-paper";
+import { FAB, Snackbar, ActivityIndicator, Text } from "react-native-paper";
 import ContactListItem from "../components/ContactListItem";
 import { ContactsContext } from '../context/ContactsContext';
 
@@ -37,7 +37,7 @@ const ContactListScreen = ({ navigation }) => {
       {/* FAB to add a new contact */}
       <FAB
         icon="plus"
-        style={{ position: "absolute", bottom: 16, right: 16 }}
+        style={{ position: "absolute", bottom: 50, right: 16 }}
         onPress={() => navigation.navigate("ContactForm")}
       />
     </View>
