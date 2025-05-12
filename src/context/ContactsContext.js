@@ -32,7 +32,8 @@ export const ContactsProvider = ({ children }) => {
       id: contact.id,
       name: contact.name,
       phone:contact.phone,
-      email: contact.email
+      email: contact.email,
+      syncStatus:contact.syncStatus
     })));
   };
 

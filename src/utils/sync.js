@@ -32,7 +32,7 @@ export const syncContactsWithServer = async (
   }
 
   if (setIsSyncing) setIsSyncing(true);
-  if (setSyncMessage) setSyncMessage(🔄 Syncing {unsynced.length} contacts...);
+  if (setSyncMessage) setSyncMessage("🔄 Syncing ${unsynced.length} contacts...");
   await delay(1000);
 
   for (const contact of unsynced) {
@@ -45,7 +45,7 @@ export const syncContactsWithServer = async (
       };
 
       let response;
-      if (setSyncMessage) setSyncMessage(🔄 Syncing ${contact.name}...);
+      if (setSyncMessage) setSyncMessage("🔄 Syncing ${contact.name}...");
       await delay(700);
 
       if (contact.syncStatus === 1) {
@@ -68,14 +68,14 @@ export const syncContactsWithServer = async (
             contact.syncStatus = 0;
           }
         });
-        if (setSyncMessage) setSyncMessage(✅ Synced ${contact.name});
+        if (setSyncMessage) setSyncMessage("✅ Synced ${contact.name}");
       } else {
-        if (setSyncMessage) setSyncMessage(❌ Failed syncing ${contact.name});
+        if (setSyncMessage) setSyncMessage("❌ Failed syncing ${contact.name}");
       }
 
     } catch (error) {
-      console.error(❌ Error syncing ${contact.name}:, error);
-      if (setSyncMessage) setSyncMessage(❌ Error syncing ${contact.name});
+      console.error("❌ Error syncing ${contact.name}:, error");
+      if (setSyncMessage) setSyncMessage("❌ Error syncing ${contact.name}");
     }
 
     await delay(1000);
