@@ -9,6 +9,7 @@ const ContactSchema = {
     name: 'string',
     phone: 'string',
     email: 'string?',   //The question mark "?" means it's optional
+    syncStatus: 'int' // syncStatus: 0 = synced, 1 = new/unsynced, -1 = to delete
   },
   primaryKey: 'id',
 };
@@ -55,7 +56,7 @@ export const ContactsProvider = ({ children }) => {
         const {name,phone,email} = contactData;
         // Generate a unique ud as a string by using the current timestamp)
         const newId = Date.now().toString();
-        realm.create('Contact', { id: newId, name, phone, email });
+        realm.create('Contact', { id: newId, name, phone, email, syncStatus: 1 });
 
       });
       // Refresh contacts from Realm
@@ -74,6 +75,7 @@ export const ContactsProvider = ({ children }) => {
           contactToUpdate.name = newData.name;
           contactToUpdate.phone = newData.phone;
           contactToUpdate.email = newData.email;
+          contactToUpdate.syncStatus = 1;
         }
       });
       loadContacts();
@@ -88,7 +90,9 @@ export const ContactsProvider = ({ children }) => {
       realm.write(() => {
         let contactToDelete = realm.objectForPrimaryKey('Contact', id);
         if (contactToDelete) {
+          contactToDelete.syncStatus = -1
           realm.delete(contactToDelete);
+          
         }
       });
       loadContacts();
